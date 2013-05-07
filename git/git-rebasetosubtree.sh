@@ -17,9 +17,6 @@ then
     exit 1
 fi
 
-# create target tree using provided directory subtree
-HASH=$(git ls-tree $BRANCH $1/ | sed -e "s/$1\///" | git mktree)
-HASH=$(echo "remove $1 from repository tree" | git commit-tree $HASH)
 # check for existing target branch
 git show-ref --verify --quiet "refs/heads/$NEWBRANCH"
 if [[ $? != 0 ]]
@@ -28,10 +25,12 @@ then
     git checkout -b $NEWBRANCH $HASH
 else
     # rebase the branch
-    git checkout $NEWBRANCH && git rebase -p $HASH
+    git checkout $NEWBRANCH && git rebase -p $BRANCH
 fi
 
-# merge the original log
-git merge -s ours -m "Merge $BRANCH into current with ours strategy to keep logs" $BRANCH
-# rebase the log
-git rebase -f HEAD^
+# check we are on the right branch
+if [[ `git rev-parse --abbrev-ref HEAD` -eq "$NEWBRANCH" ]]
+then
+    FILTER="find $DIR/  -maxdepth 1 -type f | xargs -I{} -e mv {} . ; mv $DIR/* .; rmdir $DIR"
+    git filter-branch -f --prune-empty --tree-filter "$FILTER" -- && git gc --aggressive
+fi
