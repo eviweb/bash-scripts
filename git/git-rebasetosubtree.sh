@@ -11,7 +11,7 @@ BRANCH=$(git rev-parse --abbrev-ref HEAD)
 NEWBRANCH="new-$BRANCH-rebased"
 
 # check provided directory exists
-if [ -z `git ls-tree master | grep -o $DIR` ]
+if [ -z `git ls-tree $BRANCH | grep -o $DIR` ]
 then
     echo "$DIR does not seem to exist on branch : $BRANCH !"
     exit 1
@@ -31,6 +31,6 @@ fi
 # check we are on the right branch
 if [[ `git rev-parse --abbrev-ref HEAD` -eq "$NEWBRANCH" ]]
 then
-    FILTER="find $DIR/  -maxdepth 1 -type f | xargs -I{} -e mv {} . ; mv $DIR/* .; rmdir $DIR"
-    git filter-branch -f --prune-empty --tree-filter "$FILTER" -- && git gc --aggressive
+    # --all
+    git filter-branch -f --prune-empty --subdirectory-filter $DIR HEAD -- && git gc --aggressive --prune=now
 fi
