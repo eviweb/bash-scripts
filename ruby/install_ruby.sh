@@ -9,4 +9,4 @@ rvm requirements
 rvm install 1.9.3
 rvm use 1.9.3 --default
 rvm rubygems current
-echo "Don't forget to run 'source ~/.bashrc' to reload your shell config'
+echo "Don't forget to run 'source ~/.bashrc' to reload your shell config"
