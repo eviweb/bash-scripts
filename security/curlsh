@@ -1,0 +1,105 @@
+#! /bin/bash
+# secure the use of `curl <url> | sh`
+#
+# @see http://blog.classicalcode.com/2012/11/curl-pipe-sh-exploit-proof-of-concept/ 
+# @see http://www.djm.org.uk/protect-yourself-from-non-obvious-dangers-curl-url-pipe-sh/
+# @see https://github.com/djm/pipe-to-sh-poc
+#
+
+# define a variable content using heredoc
+function define()
+{
+    IFS=$''
+    read -d '' ${1} || true; 
+}
+
+# Help message
+define Usage << "HELP"
+
+Usage: curlsh [OPTIONS] FILE [ARGUMENTS]
+Options:
+    -h          display this message
+    -d          temporary working directory (default: /tmp)
+    -e          text editor
+    -q          quiet mode, disable the secure mode (!!! WARNING !!!)
+HELP
+
+# print the help message
+function usage()
+{
+    echo -e "$Usage"
+}
+
+# if no given parameters, abort
+if [ $# -eq 0 ]
+then
+    usage
+    exit 1
+fi
+
+# default command line options
+OPTIONS=":hd:e:q"
+
+# default temporary working directory
+TMPDIR="/tmp"
+
+# default temporary file name
+TMPFILE="curlsh.XXXXXXXX"
+
+# quiet mode default value
+QUIETMODE=0
+
+# default editor
+EDITOR="cat"
+
+# get command line options
+while getopts $OPTIONS option
+do
+    case $option in
+        d) [[ -d "${OPTARG}" ]] && TMPDIR=${OPTARG};;
+        e) [[ -e "$(which ${OPTARG})" ]] && EDITOR=$(which ${OPTARG});;
+        q) QUIETMODE=1;;
+        h | *) usage && exit 0 || exit 1;;
+    esac
+done
+shift $(($OPTIND - 1 ))
+
+# yes/no menu choice
+function yesno()
+{
+    local def=${2:-n}
+    while ! [[ "$choice" =~ [yYnN] ]]
+    do
+        read -s -p  "$1 ? [$def]" choice
+        choice=${choice:-$def}
+        echo ''
+    done
+    [[ "$choice" =~ [yY] ]] && return 0 || return 1
+}
+
+# curlsh function
+function curlsh {
+    file=$(mktemp $TMPDIR/$TMPFILE) || { echo "Failed creating file"; return; }
+    curl -s "$1" > $file || { echo "Failed to curl file"; return; }
+    if [[ $QUIETMODE -eq 0 ]]
+    then
+        echo ""
+        echo "**** BEGIN FILE CONTENT ****"
+        $EDITOR $file || { echo "Editor quit with error code"; return; }
+        echo "**** END FILE CONTENT ****"
+        echo ""
+        if ! yesno 'Would you want to execute this script' 'N'
+        then
+            echo 'Abort.'
+            rm $file
+            exit 1
+        fi
+    fi
+    shift
+    sh $file $@
+    rm $file
+}
+
+curlsh $@
+
+exit 0
