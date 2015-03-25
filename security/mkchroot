@@ -90,14 +90,14 @@ function copy()
 {
     local current="$1"
     local target="$2"
-    local next=$(readlink "${current}")
+    local next=$(readlink -e "${current}")
 
     if [ -e "${current}" ]; then
         log "Copy: ${current} to: ${target}"
         cp --parents -u -d "${current}" "${target}"
     fi
 
-    if [ -n "${next}" ]; then
+    if [ -n "${next}" ] && [ "${next}" != "${current}" ]; then
         copy "${next}" "${target}"
     fi
 }
