@@ -125,7 +125,7 @@ function copyArch()
     local target="$1"
 
     copy "${amd64}" "${target}"
-    copy "${i386}" "${i386}"
+    copy "${i386}" "${target}"
 }
 
 # performs some environment checking
