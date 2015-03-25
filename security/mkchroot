@@ -19,7 +19,7 @@ Usage: chroot [OPTIONS] COMMANDS
 Options:
     -h          display this message
     -d          directory in which setup the chroot tree (default: /home/jail)
-    -v          verbose
+    -v          increase verbosity
 
 create the chroot root directory if it does not exists, and copy the specified
 COMMANDS and their dependencies in a similar tree as their initial one under the
