@@ -111,7 +111,7 @@ function copyDependencies()
     local current="$1"
     local target="$2"
 
-    for dependency in $( ldd "${current}" | grep -v dynamic | cut -d " " -f 3 | sed 's/://' | sort | uniq )
+    for dependency in $( ldd "${current}" | grep -v dynamic | cut -d " " -f 3 | sed 's/://' | sort | uniq | xargs )
     do
         copy "${dependency}" "${target}"
     done
