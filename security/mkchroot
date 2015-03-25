@@ -52,7 +52,7 @@ VERBOSE=0
 while getopts $OPTIONS option
 do
     case $option in
-        d) [[ -d "${OPTARG}" ]] && CHROOT_DIR=${OPTARG};;
+        d) CHROOT_DIR=${OPTARG};;
         v) VERBOSE=1;;
         h | *) usage && exit 0 || exit 1;;
     esac
@@ -81,7 +81,10 @@ function checkPrivileges()
 function checkChrootDirectory()
 {
     log "Check: ${CHROOT_DIR} exists"
-    [ ! -d "${CHROOT_DIR}" ] && mkdir -p ${CHROOT_DIR}
+    [ ! -e "${CHROOT_DIR}" ] && mkdir -p ${CHROOT_DIR}
+    [ ! -d "${CHROOT_DIR}" ] \
+        && echo "Directory: ${CHROOT_DIR} must be valid." \
+        && exit 1
 }
 
 # duplicate a subtree (symlinks + files), starting from a given file and so under
