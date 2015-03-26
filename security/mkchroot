@@ -94,7 +94,7 @@ function copy()
 {
     local current="$1"
     local target="$2"
-    local next=$(readlink -e "${current}")
+    local next=$(which $(readlink "${current}"))
 
     log "Should copy: ${current} to: ${target}${current}"
     if [ -e "${current}" ]; then
