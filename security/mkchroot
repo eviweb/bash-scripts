@@ -94,7 +94,12 @@ function copy()
 {
     local current="$1"
     local target="$2"
-    local next=$(which $(readlink "${current}"))
+    local next=$(readlink "${current}")
+
+    if [ -n "${next}" ] && [ "$(dirname ${next})" == "." ]; then
+        log "Link: ${next} for: ${current} is in the same directory"
+        next=$(dirname ${current})/${next}
+    fi
 
     log "Should copy: ${current} to: ${target}${current}"
     if [ -e "${current}" ]; then
