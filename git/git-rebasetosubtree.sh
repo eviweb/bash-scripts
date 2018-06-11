@@ -29,7 +29,7 @@ else
 fi
 
 # check we are on the right branch
-if [[ `git rev-parse --abbrev-ref HEAD` -eq "$NEWBRANCH" ]]
+if [[ `git rev-parse --abbrev-ref HEAD` == "$NEWBRANCH" ]]
 then
     # --all
     git filter-branch -f --prune-empty --subdirectory-filter $DIR HEAD -- && git gc --aggressive --prune=now
