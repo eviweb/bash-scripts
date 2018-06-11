@@ -21,6 +21,7 @@ fi
 git show-ref --verify --quiet "refs/heads/$NEWBRANCH"
 if [[ $? != 0 ]]
 then
+    HASH="$(git rev-parse $BRANCH)"
     # checkout the target tree in a new branch
     git checkout -b $NEWBRANCH $HASH
 else
